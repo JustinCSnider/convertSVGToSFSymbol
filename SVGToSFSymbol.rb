@@ -6,7 +6,7 @@ TEMPLATE_PATH = "template.svg"
 # Path to one of the SVGs provided by the designers
 SOURCE_SVG_PATH = ARGV[0]
 # Path to the SVG we are generating
-DESTINATION_SVG_PATH = "icon-symbol.svg"
+DESTINATION_SVG_PATH = ARGV[1]
 
 # Expected icon size
 ICON_WIDTH = 64
@@ -95,7 +95,8 @@ def replaceNode(xml_id, scale, translation_x, translation_y, symbol_svg, icon_sv
   node["transform"] = "matrix(#{transform_matrix.join(" ")})"
 
   # Replace the content of the xml_id node with the icon.
-  node.children = icon_svg.root.children.dup
+  root_dup = icon_svg.root.dup
+  node.children = root_dup.children
 end
 
 # Move the shape so its center is at the center of the guides.
@@ -103,6 +104,17 @@ translation_x = horizontal_center - scaled_width / 2
 translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
 
 replaceNode("Regular-M", scale, translation_x, translation_y, symbol_svg, icon_svg)
+
+# Get the y1 (should be the same as y2) of the #Baseline-M node.
+baseline_y = get_guide_value(template_svg, :y, "Baseline-S")
+# Get the y1 (should be the same as y2) of the #Capline-M node.
+capline_y = get_guide_value(template_svg, :y, "Capline-S")
+
+# Move the shape so its center is at the center of the guides.
+translation_x = horizontal_center - scaled_width / 2
+translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
+
+replaceNode("Regular-S", scale, translation_x, translation_y, symbol_svg, icon_svg)
 
 # Finish by writing the generated symbol to disk.
 File.open(DESTINATION_SVG_PATH, "w") do |f|
