@@ -57,7 +57,7 @@ end
 if icon_svg.root["width"] != ICON_WIDTH.to_s ||
   icon_svg.root["height"] != ICON_HEIGHT.to_s ||
   icon_svg.root["viewBox"] != "0 0 #{ICON_WIDTH} #{ICON_HEIGHT}"
-  raise "expected icon size of All Entities.svg to be (#{ICON_WIDTH}, #{ICON_HEIGHT})"
+  raise "expected icon size of #{SOURCE_SVG_PATH} to be (#{ICON_WIDTH}, #{ICON_HEIGHT})"
 end
 
 scale = ((baseline_y - capline_y).abs / ICON_HEIGHT) * ADDITIONAL_SCALING
@@ -103,18 +103,30 @@ end
 translation_x = horizontal_center - scaled_width / 2
 translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
 
-replaceNode("Regular-M", scale, translation_x, translation_y, symbol_svg, icon_svg)
+space_between_centers = 296.71
+font_scales = ["S", "M", "L"]
+font_weights = ["Ultralight", "Thin", "Light", "Regular", "Medium", "Semibold", "Bold", "Heavy", "Black"]
+regular_index = font_weights.find_index("Regular")
+medium_index = font_scales.find_index("M")
 
-# Get the y1 (should be the same as y2) of the #Baseline-M node.
-baseline_y = get_guide_value(template_svg, :y, "Baseline-S")
-# Get the y1 (should be the same as y2) of the #Capline-M node.
-capline_y = get_guide_value(template_svg, :y, "Capline-S")
+font_scales.each { |font_scale|
+  # Get the y1 (should be the same as y2) of the #Baseline-M node.
+  baseline_y = get_guide_value(template_svg, :y, "Baseline-" + font_scale)
+  # Get the y1 (should be the same as y2) of the #Capline-M node.
+  capline_y = get_guide_value(template_svg, :y, "Capline-" + font_scale)
 
-# Move the shape so its center is at the center of the guides.
-translation_x = horizontal_center - scaled_width / 2
-translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
+  translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
 
-replaceNode("Regular-S", scale, translation_x, translation_y, symbol_svg, icon_svg)
+  font_weights.each_with_index { |font_weight, idx|
+    current_index = idx - regular_index
+    if (current_index < 0) 
+      translation_x = (horizontal_center - (space_between_centers * current_index.abs)) - scaled_width / 2
+    else
+      translation_x = (horizontal_center + (space_between_centers * current_index.abs)) - scaled_width / 2
+    end
+    replaceNode(font_weight + "-" + font_scale, scale, translation_x, translation_y, symbol_svg, icon_svg)
+  }
+}
 
 # Finish by writing the generated symbol to disk.
 File.open(DESTINATION_SVG_PATH, "w") do |f|
