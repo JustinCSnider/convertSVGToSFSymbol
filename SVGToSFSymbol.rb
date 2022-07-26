@@ -82,6 +82,8 @@ right_margin_node["x2"] = adjusted_right_margin.to_s
 # In this script we generate only one symbol, but if we end up generating multiple symbols at one it's safer to work on a copy.
 symbol_svg = template_svg.dup
 
+default_scale = scale.dup
+
 def replaceNode(xml_id, scale, translation_x, translation_y, symbol_svg, icon_svg)
   # It's finally time to handle that important xml_id node.
   node = symbol_svg.at_css("##{xml_id}")
@@ -106,19 +108,21 @@ translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
 space_between_centers = 296.71
 font_scales = ["S", "M", "L"]
 font_weights = ["Ultralight", "Thin", "Light", "Regular", "Medium", "Semibold", "Bold", "Heavy", "Black"]
+current_symbol_scale = 0.775
+symbol_scale_additions = [0.001, 0.002, 0.003, 0.004, 0.04, 0.03, 0.03, 0.06, 0.04]
 regular_index = font_weights.find_index("Regular")
 medium_index = font_scales.find_index("M")
 
-font_scales.each { |font_scale|
-  # Get the y1 (should be the same as y2) of the #Baseline-M node.
+font_scales.each_with_index { |font_scale, scale_index|
   baseline_y = get_guide_value(template_svg, :y, "Baseline-" + font_scale)
-  # Get the y1 (should be the same as y2) of the #Capline-M node.
   capline_y = get_guide_value(template_svg, :y, "Capline-" + font_scale)
 
   translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
 
-  font_weights.each_with_index { |font_weight, idx|
-    current_index = idx - regular_index
+  font_weights.each_with_index { |font_weight, weight_index|
+    current_symbol_scale += symbol_scale_additions[weight_index]
+    scale = default_scale * current_symbol_scale
+    current_index = weight_index - regular_index
     if (current_index < 0) 
       translation_x = (horizontal_center - (space_between_centers * current_index.abs)) - scaled_width / 2
     else
