@@ -117,17 +117,16 @@ font_scales.each_with_index { |font_scale, scale_index|
   baseline_y = get_guide_value(template_svg, :y, "Baseline-" + font_scale)
   capline_y = get_guide_value(template_svg, :y, "Capline-" + font_scale)
 
-  translation_y = (baseline_y + capline_y) / 2 - scaled_height / 2
-
   font_weights.each_with_index { |font_weight, weight_index|
     current_symbol_scale += symbol_scale_additions[weight_index]
     scale = default_scale * current_symbol_scale
     current_index = weight_index - regular_index
     if (current_index < 0) 
-      translation_x = (horizontal_center - (space_between_centers * current_index.abs)) - scaled_width / 2
+      translation_x = (horizontal_center - (space_between_centers * current_index.abs)) - ((scaled_width * current_symbol_scale) / 2)
     else
-      translation_x = (horizontal_center + (space_between_centers * current_index.abs)) - scaled_width / 2
+      translation_x = (horizontal_center + (space_between_centers * current_index.abs)) - ((scaled_width * current_symbol_scale) / 2)
     end
+    translation_y = ((baseline_y + capline_y) / 2) - ((scaled_height * current_symbol_scale) / 2)
     replaceNode(font_weight + "-" + font_scale, scale, translation_x, translation_y, symbol_svg, icon_svg)
   }
 }
