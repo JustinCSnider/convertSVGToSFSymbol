@@ -6,7 +6,7 @@ TEMPLATE_PATH = "template.svg"
 # Path to one of the SVGs provided by the designers
 SOURCE_SVG_PATH = ARGV[0]
 # Path to the SVG we are generating
-DESTINATION_SVG_PATH = ARGV[1]
+DESTINATION_SVG_PATH = ARGV[0]
 
 # Expected icon size
 ICON_WIDTH = 64
