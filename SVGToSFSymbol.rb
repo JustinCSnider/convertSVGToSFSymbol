@@ -9,8 +9,8 @@ SOURCE_SVG_PATH = ARGV[0]
 DESTINATION_SVG_PATH = ARGV[0]
 
 # Expected icon size
-ICON_WIDTH = 64
-ICON_HEIGHT = 64
+ICON_WIDTH = 16
+ICON_HEIGHT = 16
 # Additional scaling to have a size closer to Apple's provided SF Symbols
 # (I just tried different values and that looked pretty close)
 ADDITIONAL_SCALING = 1.7
